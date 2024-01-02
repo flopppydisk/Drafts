@@ -1,0 +1,35 @@
+import datetime
+import businesstimedelta
+
+
+def business_hours(row, column_a, column_b):
+    workday = businesstimedelta.WorkDayRule(
+        start_time=datetime.time(9),
+        end_time=datetime.time(17),
+        working_days=[0, 1, 2, 3, 4])
+
+    businesshours = businesstimedelta.Rules([workday])
+
+    start_date = pd.Timestamp(row[column_a]).to_pydatetime()
+    end_date = pd.Timestamp(row[column_b]).to_pydatetime()
+
+    bus_hrs = businesshours.difference(start_date, end_date).timedelta
+
+    leadtime = bus_hrs.total_seconds() / 3600
+
+    return leadtime
+
+
+# Example usage on a file with "Opened" (column_a) and "Closed date" (column_b) columns
+
+import pandas as pd
+
+
+file_csv = r"ENTER YOUR FILE HERE"
+file_data = pd.read_csv(file_csv, delimiter=';', dtype={10: str}, encoding='utf-8-sig')
+
+
+file_data['Leadtime'] = file_data.apply(lambda row: business_hours(row, 'Opened', 'Closed date'), axis=1)
+
+
+print(file_data.to_string(index=False, max_rows=300))
