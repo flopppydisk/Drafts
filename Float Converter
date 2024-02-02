@@ -1,0 +1,39 @@
+import pandas as pd
+
+file = r"SOME FILE"
+
+df = pd.read_excel(file)
+
+# Define a function to convert the values to floats while preserving their original structure
+def convert_to_float(value):
+    if " " in value:
+        value = value.replace(" ", "")
+    # Check if both "." and "," are present in the value
+    if "." in value and "," in value:
+        # Find the index of the first occurrence of "." and ","
+        dot_index = value.index(".")
+        comma_index = value.index(",")
+        # Determine which separator appears first
+        if comma_index < dot_index:
+            # If "," appears first, replace
+            value = value.replace(",", "")
+        else:
+            # If "." appears first, remove it and replace commas in the integer part
+            value = value.replace(".", "")
+            value = value.replace(",", ".")
+
+    elif "," in value and "." not in value:
+        value = value.replace(",", ".")
+    # Convert the value to float
+    try:
+        return float(value)
+    except ValueError:
+        # Handle the case where the value cannot be converted to float
+        return None
+
+
+
+# Apply the function to the "SAP Price" column
+df["New Price"] = df["Price"].apply(convert_to_float)
+
+print(df.to_string())
