@@ -1,0 +1,73 @@
+import bpy
+import bmesh
+import json
+import os
+
+"A script that allows you to export datapoint from a blender mesh to a json file.
+
+For the future: data-points to be stored into a pandas dataframe, analyzed and
+to be used for ML model training."
+
+def export_selected_mesh():
+    # Ensure we're in Object Mode
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    # Get the active object (the mesh)
+    obj = bpy.context.active_object
+
+    # Ensure the object is a mesh
+    if obj and obj.type == 'MESH':
+        # Get the mesh data
+        mesh = obj.data
+
+        # Apply all modifiers
+        bpy.ops.object.modifier_apply(modifier='All')
+
+        # Get vertices, edges, and faces
+        vertices = [v.co for v in mesh.vertices]
+        edges = [e.vertices[:] for e in mesh.edges]
+        faces = [f.vertices[:] for f in mesh.polygons]
+
+        # Create a dictionary to store the mesh data
+        mesh_data = {
+            "vertices": vertices,
+            "edges": edges,
+            "faces": faces
+        }
+
+        # Define the path to save the JSON file
+        save_path = os.path.join(os.path.expanduser("~"), "Downloads", "selected_mesh.json")
+
+        # Export the mesh data to a JSON file
+        with open(save_path, "w") as f:
+            json.dump(mesh_data, f)
+
+def reconstruct_mesh():
+    # Define the path to load the JSON file
+    load_path = os.path.join(os.path.expanduser("~"), "Downloads", "selected_mesh.json")
+
+    # Load the mesh data from the JSON file
+    with open(load_path, "r") as f:
+        mesh_data = json.load(f)
+
+    # Create a new mesh
+    mesh = bpy.data.meshes.new("reconstructed_mesh")
+
+    # Set vertices, edges, and faces
+    mesh.from_pydata(mesh_data["vertices"], mesh_data["edges"], mesh_data["faces"])
+    mesh.update()
+
+    # Create a new object with the mesh
+    obj = bpy.data.objects.new("ReconstructedMesh", mesh)
+
+    # Link the object to the current scene
+    scene = bpy.context.scene
+    scene.collection.objects.link(obj)
+
+    # Select and activate the new object
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+
+export_selected_mesh()
+reconstruct_mesh()
+
