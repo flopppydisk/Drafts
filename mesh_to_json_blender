@@ -3,10 +3,10 @@ import bmesh
 import json
 import os
 
-"A script that allows you to export datapoint from a blender mesh to a json file.
+"""A script that allows you to export datapoint from a blender mesh to a json file.
 
 For the future: data-points to be stored into a pandas dataframe, analyzed and
-to be used for ML model training."
+to be used for ML model training."""
 
 def export_selected_mesh():
     # Ensure we're in Object Mode
