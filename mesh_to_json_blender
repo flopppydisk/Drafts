@@ -1,5 +1,4 @@
 import bpy
-import bmesh
 import json
 import os
 
@@ -24,7 +23,7 @@ def export_selected_mesh():
         bpy.ops.object.modifier_apply(modifier='All')
 
         # Get vertices, edges, and faces
-        vertices = [v.co for v in mesh.vertices]
+        vertices = [list(v.co) for v in mesh.vertices]  # Convert Vector to list
         edges = [e.vertices[:] for e in mesh.edges]
         faces = [f.vertices[:] for f in mesh.polygons]
 
@@ -70,4 +69,3 @@ def reconstruct_mesh():
 
 export_selected_mesh()
 reconstruct_mesh()
-
